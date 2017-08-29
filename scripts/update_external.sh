@@ -1,6 +1,10 @@
 #!/bin/bash
 
+if [ ! -d ../external ]; then
+	mkdir ../external
+fi	
 cd ../external
+
 if [ -d eigen ]; then
 	cd eigen
 	git pull	

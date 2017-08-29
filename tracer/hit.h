@@ -10,10 +10,10 @@ public:
 		
 	Hit() noexcept : distance_(-1.0f) { }
 		
-	constexpr float distance() const noexcept { return distance_; }
+	float distance() const noexcept { return distance_; }
 //	constexpr const Plane& object() const noexcept { return object_; }
 	
-	constexpr operator bool() const noexcept { return distance()>0.0f; }
+	operator bool() const noexcept { return distance()>0.0f; }
 };
 
 };

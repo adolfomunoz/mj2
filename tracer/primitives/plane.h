@@ -17,8 +17,8 @@ public:
 	Plane() noexcept:
 		Plane(Eigen::Vector3f(0.0,0.0,-1.0f),0.0f) { }
 		
-	constexpr const Eigen::Vector3f& normal() const noexcept { return normal_; }
-	constexpr float distance() const noexcept { return distance_; }
+	const Eigen::Vector3f& normal() const noexcept { return normal_; }
+	float distance() const noexcept { return distance_; }
 	
 	Plane(const Eigen::Vector3f& normal, const Eigen::Vector3f& point) :
 		Plane(normal, -normal.normalized().dot(point)) {}
@@ -27,7 +27,7 @@ public:
 		return normal().dot(point) + distance();
 	}
 	
-	std::optional<Hit> trace(const Ray& ray) const noexcept {
+	std::optional<Hit> trace(const Ray& ray) const noexcept override {
 		float d = (-ray.origin().dot(normal()) - distance())/ray.direction().dot(normal());
 		if (ray.in_range(d)) return Hit(d); //This checks also that it is finite.
 		else return {};
