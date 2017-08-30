@@ -46,4 +46,11 @@ function(add_all_subdirectories)
 	endforeach()
 endfunction(add_all_subdirectories)
 
+function(add_executable_and_test executable srcs)
+	message("TEST ${executable} ${srcs}")
+	add_executable(${executable} ${srcs})
+	add_test(NAME "test-${executable}" COMMAND ${executable})
+endfunction(add_executable_and_test)
+
+enable_testing()
 add_subdirectory(main)

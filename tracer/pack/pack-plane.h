@@ -8,10 +8,9 @@ namespace tracer {
 
 template<int N>
 class Pack<Plane,N> : public Object {
-	std::array<Plane,N> planes_;
 	Eigen::Matrix<float,N,3> normals_;
 	Eigen::Matrix<float,N,1> distances_;
-	unsigned int n_;
+	std::array<Plane,N> planes_;
 
 	//We focus the efficency on the trace method, not in the construction of the structure which obviously is rather slow.
 	template<typename Collection>

@@ -4,6 +4,8 @@
 #include "object.h"
 #include "ray.h"
 #include "primitives/plane.h"
+#include "primitives/sphere.h"
 #include "pack/list.h"
 #include "pack/pack.h"
 #include "pack/pack-plane.h"
+#include "pack/pack-sphere.h"
