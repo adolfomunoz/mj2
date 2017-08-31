@@ -27,9 +27,9 @@ public:
 	Ray ray(float u, float v) const {
 	       	//Between -1 and 1 each for the projection plane (-1, -1) top left corner
 		return Ray(transform().block<3,1>(0,3),
-			(-u)*transform().block<3,1>(0,0) +
+			((-u)*transform().block<3,1>(0,0) +
 			(-v)*transform().block<3,1>(0,1) +
-			  transform().block<3,1>(0,2));
+			  transform().block<3,1>(0,2)).normalized());
 	}
 };
 
