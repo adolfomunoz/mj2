@@ -1,0 +1,32 @@
+#include <iostream>
+#include <tracer/tracer.h>
+#include <image/cimg-all.h>
+
+int main(int argc, char** argv) {
+	std::list<tracer::Plane> planes;
+	planes.push_back(tracer::Plane(Eigen::Vector3f( 0, 0,-1), Eigen::Vector3f( 0, 0, 1)));
+	planes.push_back(tracer::Plane(Eigen::Vector3f( 0,-1, 0), Eigen::Vector3f( 0, 1, 0)));
+	planes.push_back(tracer::Plane(Eigen::Vector3f( 0, 1, 0), Eigen::Vector3f( 0,-1, 0)));
+	planes.push_back(tracer::Plane(Eigen::Vector3f(-1, 0, 0), Eigen::Vector3f( 1, 0, 0)));
+	planes.push_back(tracer::Plane(Eigen::Vector3f( 1, 0, 0), Eigen::Vector3f(-1, 0, 0)));
+
+	tracer::Pack<tracer::Plane,5> scene(planes);
+
+	int w = 512;
+	int h = 512;
+
+	cimg_library::CImg<float> output(w,h,1,3);
+
+	tracer::Pinhole camera(Eigen::Vector3f( 0, 0, -10), Eigen::Vector3f( 0, 0, 1), Eigen::Vector3f( 0, 1, 0));
+
+	float du = 2.0/float(w);
+	float dv = 2.0/float(h);
+	float u, v; int i, j;
+	for (j=0,v=0.5*dv; j<h; ++j, v+=dv) for (i=0,u=0.5*du; i<w; ++i, u+=du) {
+		std::optional<tracer::Hit> hit = scene.trace(camera.ray(u,v));
+		if (hit) output(i,j,0,0) = output(i,j,0,1) = output(i,j,0,2) = hit->distance();
+		else     output(i,j,0,0) = 10.0f;
+	}
+
+	output.save("output.hdr");
+}

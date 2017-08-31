@@ -9,3 +9,4 @@
 #include "pack/pack.h"
 #include "pack/pack-plane.h"
 #include "pack/pack-sphere.h"
+#include "sensors/pinhole.h"

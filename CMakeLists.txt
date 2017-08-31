@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8.3)
 
 include_directories(${mj2_SOURCE_DIR})
 include_directories(SYSTEM ${mj2_SOURCE_DIR}/external/eigen)
+include_directories(SYSTEM ${mj2_SOURCE_DIR}/external/CImg)
 include_directories(SYSTEM ${mj2_SOURCE_DIR}/external/pybind11/include)
 
 # Set a default build type for single-configuration
@@ -37,6 +38,8 @@ elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
    message(STATUS "D.Flags   = ${CMAKE_CXX_FLAGS_DEBUG}")
 endif()
 
+include(image/CMakeLists.txt)
+
 function(add_all_subdirectories)
 	file(GLOB children RELATIVE ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/*)
 	foreach(child ${children})
@@ -47,7 +50,6 @@ function(add_all_subdirectories)
 endfunction(add_all_subdirectories)
 
 function(add_executable_and_test executable srcs)
-	message("TEST ${executable} ${srcs}")
 	add_executable(${executable} ${srcs})
 	add_test(NAME "test-${executable}" COMMAND ${executable})
 endfunction(add_executable_and_test)

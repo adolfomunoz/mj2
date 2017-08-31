@@ -29,4 +29,13 @@ else
 	git clone https://github.com/philsquared/Catch.git
 fi
 
+if [ -d CImg ]; then
+	cd CImg
+	git pull
+	cd ..
+else
+	git clone https://github.com/dtschump/CImg.git 
+fi
+
+
 cd ../scripts
