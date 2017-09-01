@@ -29,7 +29,7 @@ public:
 	
 	std::optional<Hit> trace(const Ray& ray) const noexcept override {
 		float d = (-ray.origin().dot(normal()) - distance())/ray.direction().dot(normal());
-		if (ray.in_range(d)) return Hit(d); //This checks also that it is finite.
+		if (ray.in_range(d)) return Hit(d, ray.at(d), normal()); //This checks also that it is finite.
 		else return {};
 	}
 };

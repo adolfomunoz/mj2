@@ -6,6 +6,7 @@
 #include "primitives/plane.h"
 #include "primitives/sphere.h"
 #include "pack/list.h"
+#include "pack/scene.h"
 #include "pack/pack.h"
 #include "pack/pack-plane.h"
 #include "pack/pack-sphere.h"

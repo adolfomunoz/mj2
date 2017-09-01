@@ -39,8 +39,8 @@ public:
 			float inv2a = 0.5f/a;
 			float d1 = (-b - sqrtdisc)*inv2a;
 			float d2 = (-b + sqrtdisc)*inv2a;
-			if (ray.in_range(d1)) return Hit(d1);
-			else if (ray.in_range(d2)) return Hit(d2);
+			if (ray.in_range(d1))      { Eigen::Vector3f p = ray.at(d1); return Hit(d1,p,(p-center()).normalized()); }
+			else if (ray.in_range(d2)) { Eigen::Vector3f p = ray.at(d2); return Hit(d2,p,(p-center()).normalized()); }
 			else return {};
 		}
 	}

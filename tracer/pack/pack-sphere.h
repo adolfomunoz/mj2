@@ -52,19 +52,26 @@ public:
 		Eigen::Matrix<float,N,1> d2 = (-b + sqrtdisc)*inv2a;
 
 		std::optional<Hit> hit; Ray r = ray;
+	        int n = -1;	
 		for (int i = 0; i<N; ++i) {
 			if (disc[i]>0) {
 				if (r.in_range(d1[i])) {
-					hit = Hit(d1[i]);
+					n = i;
 					r.set_range_max(d1[i]);
 				}
 				else if (r.in_range(d2[i])) {
-					hit = Hit(d2[i]);
+					n = i;
 					r.set_range_max(d2[i]);
 				}
 			}
+		} 		
+		
+		if (n<0) return { };
+		else {
+		   // r.range_max() holds the final distance
+		   Eigen::Vector3f p = ray.at(r.range_max());    
+		   return Hit(r.range_max(),p,(p - centers().row(n).transpose()).normalized());
 		}
-		return hit;
 	}	
 };
 

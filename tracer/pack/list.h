@@ -28,7 +28,7 @@ public:
 	std::optional<Hit> trace(const Ray& ray) const noexcept override {
 		std::optional<Hit> hit, hitsingle;
 		Ray r = ray;
-		for (const Object& object : objects()) {
+		for (const O& object : objects()) {
 			if ((hitsingle = object.trace(r))) {
 				hit = hitsingle;
 				r.set_range_max(hit->distance());

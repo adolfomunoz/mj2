@@ -40,15 +40,18 @@ public:
 
 	std::optional<Hit> trace(const Ray& ray) const noexcept override {
 		Eigen::Matrix<float,N,1> d = -(normals() * ray.direction()).cwiseInverse().cwiseProduct(normals() * ray.origin() + distances());
+		int n = -1;
 
 		std::optional<Hit> hit; Ray r = ray;
 		for (int i = 0; i<N; ++i) {
 			if (r.in_range(d[i])) {
-				hit = Hit(d[i]);
+				n = i;
 				r.set_range_max(d[i]);
 			}
 		}
-		return hit;
+
+		if (n < 0) return { };
+		else       return Hit(d[n], ray.at(d[n]), normals().row(n).transpose());
 	}	
 };
 
