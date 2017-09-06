@@ -7,7 +7,7 @@ namespace tracer {
 /**
  * Equation: normal_.dot(p) + distance_ = 0;
  **/
-class Plane : public Object {
+class Plane : public ObjectImpl<Plane> {
 	Eigen::Vector3f normal_;
 	float distance_;  
 
@@ -27,9 +27,14 @@ public:
 		return normal().dot(point) + distance();
 	}
 	
-	std::optional<Hit> trace(const Ray& ray) const noexcept override {
+	std::optional<float> trace_minimal(const Ray& ray) const noexcept {
 		float d = (-ray.origin().dot(normal()) - distance())/ray.direction().dot(normal());
-		if (ray.in_range(d)) return Hit(d, ray.at(d), normal()); //This checks also that it is finite.
+		if (ray.in_range(d)) return d; 
+		else return {};
+	}
+	
+	std::optional<Hit> hit_from_minimal(const Ray& ray, const std::optional<float>& d) const noexcept {
+		if (d) return Hit(*d, ray.at(*d), normal());
 		else return {};
 	}
 };
