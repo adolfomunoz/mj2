@@ -28,9 +28,9 @@ public:
 	const Eigen::Vector3f& point() const noexcept { return point_; }
 	const Eigen::Matrix3f& local_to_global() const noexcept { return local_to_global_; }
 	
-	const Eigen::Vector3f& tangent() const noexcept { return local_to_global().col(0); }
-	const Eigen::Vector3f& bitangent() const noexcept { return local_to_global().col(1); }	
-	const Eigen::Vector3f& normal() const noexcept { return local_to_global().col(2); }
+	auto tangent() const noexcept { return local_to_global().col(0); }
+	auto bitangent() const noexcept { return local_to_global().col(1); }	
+	auto normal() const noexcept { return local_to_global().col(2); }
 //	constexpr const Plane& object() const noexcept { return object_; }
 	
 };
