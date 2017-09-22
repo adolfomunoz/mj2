@@ -10,6 +10,10 @@ class Object {
 public:
 	virtual std::optional<Hit> trace(const Ray& r) const noexcept = 0;
 	virtual bool trace_shadow(const Ray& r) const noexcept { return bool(trace(r)); }
+//We add these so any generic object can be used as an object minimal returning the whole hit
+	std::optional<Hit> trace_minimal(const Ray& ray) const noexcept { return trace(ray); }
+	float minimal_distance(const Hit& hit) const noexcept { return hit.distance(); }
+	constexpr const Hit& hit_from_minimal(const Ray& ray, const Hit& hit) const noexcept { return hit; }
 };
 
 /**
