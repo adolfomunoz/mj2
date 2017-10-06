@@ -18,7 +18,11 @@ tracer::Scene cornell_box() {
 	spheres.push_back(tracer::Sphere(Eigen::Vector3f( 0.5, -0.65,-0.2), 0.35));
 	spheres.push_back(tracer::Sphere(Eigen::Vector3f(-0.5, -0.65, 0.5), 0.35));
 	sol.push_back(std::make_shared<tracer::Pack<tracer::Sphere,2>>(spheres));
-	
+
+	std::list<tracer::Triangle> triangles;
+	triangles.push_back(tracer::Triangle(Eigen::Vector3f(0,-1,-0.8),Eigen::Vector3f(0,0,-0.5), Eigen::Vector3f(0.5,-1,-0.2)));	
+	triangles.push_back(tracer::Triangle(Eigen::Vector3f(0,0,-0.5), Eigen::Vector3f(0,-1,-0.8),Eigen::Vector3f(-0.5,-1,-0.2)));
+	sol.push_back(std::make_shared<tracer::Pack<tracer::Triangle,2>>(triangles));	
 	return sol;
 }
 
