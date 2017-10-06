@@ -6,7 +6,7 @@
 
 namespace tracer {
 
-template<int N>
+template<int N> //Make it ObjectGeneral<std::tuple<float, int>>
 class Pack<Plane,N> : public Object {
 	Eigen::Matrix<float,N,3> normals_;
 	Eigen::Matrix<float,N,1> distances_;

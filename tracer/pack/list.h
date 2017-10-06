@@ -7,23 +7,14 @@
 
 namespace tracer {
 
-template<typename O>	
-struct minimal_hit {
-	using type = void;
-};
-
-template<typename MinHit>
-struct minimal_hit<ObjectMinimal<MinHit>> {
-	using type = void;
-};
-
-template<typename O>
-struct is_minimal : public std::is_void<minimal_hit<O>> { };
-	
+//TODO: Deduce HitType and RayType and do this as an "ObjectGeneral<RayType, std::tuple<HitType, int>>" for efficiency purposes.
 template<typename O>
 class List : public Object {
 	static_assert(std::is_base_of_v<Object,O>, "The List is not a list of Objects");
 	
+	using RayType = decltype(std::declval<O>().ray_type(std::declval<Ray>()));
+	using HitType = typename std::remove_const<typename std::remove_reference<decltype(std::declval<O>().trace_general(std::declval<RayType>()).value())>::type>::type;
+
 	/**
 	 * We use a std::vector instead of a std::list for dynamic allocation but locality in memory (more cache-friendlyness)
 	 **/
@@ -38,34 +29,27 @@ public:
 	
 	const std::vector<O>& objects() const noexcept { return objects_; }
 
+	//TODO: Add hit_distance
+	//TODO: Add hit(RayType,HitType)
+
+	//TODO: Change this to trace_general when Object becomes ObjectGeneral
 	std::optional<Hit> trace(const Ray& ray) const noexcept override {
-		if constexpr (is_minimal<O>::value) {
-			using MinHit = decltype(std::declval<O>().trace_minimal(ray));
-			std::optional<MinHit> hit, hitsingle;
-			const O& closest_object = *(objects().begin());
-			Ray r = ray;
-			for (const O& object : objects()) {
-				if ((hitsingle = object.trace_minimal(r))) {
-					hit = hitsingle;
-					r.set_range_max(object.minimal_distance(*hit));
-					closest_object = object;
-				}
+		RayType r = objects()[0].ray_type(ray); //Should be the same for all objects.
+		std::optional<HitType> hit, hitsingle;
+		const O* closest_object = nullptr;
+		for (const O& object : objects()) {
+			assert(objects()[0].ray_type(ray) == object.ray_type(ray)); //This assertion is not checked in release mode, but it is neccesary in debug mode.
+			if ((hitsingle = object.trace_general(r))) {
+				hit = hitsingle;
+				r.set_range_max(object.hit_distance(*hit));
+				closest_object = &object;
 			}
-			if (hit) return closest_object.hit_from_minimal(ray, *hit);
-			else return {};
-		} else {
-			std::optional<Hit> hit, hitsingle;
-			Ray r = ray;
-			for (const O& object : objects()) {
-				if ((hitsingle = object.trace(r))) {
-					hit = hitsingle;
-					r.set_range_max(hit->distance());
-				}
-			}
-			return hit;
 		}
+		if (hit) return closest_object->hit(ray,*hit);
+		else return { };
 	}
 	
+	//TODO: Make more efficient (using RayType)	
 	bool trace_shadow(const Ray& ray) const noexcept override {
 		for (const O& object : objects()) {
 			if (object.trace_shadow(ray))

@@ -7,7 +7,7 @@ namespace tracer {
 /**
  * Equation: normal_.dot(p) + distance_ = 0;
  **/
-class Plane : public ObjectMinimal<float> {
+class Plane : public GeneralObject<float> {
 	Eigen::Vector3f normal_;
 	float distance_;  
 
@@ -27,17 +27,13 @@ public:
 		return normal().dot(point) + distance();
 	}
 	
-	std::optional<float> trace_minimal(const Ray& ray) const noexcept override {
+	std::optional<float> trace_general(const Ray& ray) const noexcept override {
 		float d = (-ray.origin().dot(normal()) - distance())/ray.direction().dot(normal());
 		if (ray.in_range(d)) return d; 
 		else return {};
 	}
 	
-	float minimal_distance(const float& minhit) const noexcept override {
-		return minhit;
-	}
-	
-	Hit hit_from_minimal(const Ray& ray, const float& d) const noexcept override{
+	Hit hit(const Ray& ray, float d) const noexcept override {
 		return Hit(d, ray.at(d), normal());
 	}
 };
