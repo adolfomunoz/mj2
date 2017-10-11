@@ -22,7 +22,8 @@ tracer::Scene cornell_box() {
 	std::list<tracer::Triangle> triangles;
 	triangles.push_back(tracer::Triangle(Eigen::Vector3f(0,-1,-0.8),Eigen::Vector3f(0,0,-0.5), Eigen::Vector3f(0.5,-1,-0.2)));	
 	triangles.push_back(tracer::Triangle(Eigen::Vector3f(0,0,-0.5), Eigen::Vector3f(0,-1,-0.8),Eigen::Vector3f(-0.5,-1,-0.2)));
-	sol.push_back(std::make_shared<tracer::Pack<tracer::Triangle,2>>(triangles));	
+	sol.push_back(std::make_shared<tracer::Pack<tracer::Triangle,2>>(triangles));
+		
 	return sol;
 }
 

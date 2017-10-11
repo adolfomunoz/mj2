@@ -23,10 +23,11 @@ class Pack<Plane,N> : public Object {
 			planes_[n] = p;
 			++n;	
 		}
+		--n;
 		//We copy the last plane to fill the whole pack (should not happen very often...)
-		for (int i = n; i<N; ++i) {
+		for (int i = (n+1); i<N; ++i) {
 			normals_.row(i) = normals_.row(n);
-			distances_[i] = distances_[n];
+			distances_(i) = distances_(n);
 			planes_[i] = planes_[n];
 		}
 	}	

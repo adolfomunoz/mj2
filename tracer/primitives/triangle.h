@@ -6,12 +6,14 @@
 namespace tracer {
 
 /**
- * Using the Möller-Trumbore intersection algorithm. 
+ * Using the Möller-Trumbore intersection algorithm, which proved slightly faster than the Havel-Herout algorithm
  *
  * The "HitType" is (t,u,v) where t is the ray parameter, and u and v are coordinates on the surface
  * of the triangle.
  **/
 class Triangle : public GeneralObject<std::tuple<float,float,float>> {
+//	Eigen::Vector3f geometric_normal_, geometric_normal1_, geometric_normal2_;
+//	float distance_, distance1_, distance2_;
 	Eigen::Vector3f edge1_, edge2_;
 	Eigen::Vector3f point0_, point1_, point2_;
 	Eigen::Vector3f normal0_, normal1_, normal2_;
@@ -21,6 +23,11 @@ public:
 		 const Eigen::Vector3f& point1, const Eigen::Vector3f& normal1, const Eigen::Vector3f& tangent1,
 		 const Eigen::Vector3f& point2, const Eigen::Vector3f& normal2, const Eigen::Vector3f& tangent2) :
 		edge1_(point1 - point0), edge2_(point2 - point0),
+//		geometric_normal_((point1 - point0).cross(point2 - point0)),
+//		geometric_normal1_((point2 - point0).cross(geometric_normal_)/geometric_normal_.squaredNorm()),
+//		geometric_normal2_(geometric_normal_.cross(point1 - point0)/geometric_normal_.squaredNorm()),
+//		distance_(-geometric_normal_.dot(point0)),
+//		distance1_(-geometric_normal1_.dot(point0)), distance2_(-geometric_normal2_.dot(point0)),
 		point0_(point0), point1_(point1), point2_(point2),
 		normal0_(normal0), normal1_(normal1), normal2_(normal2),
 		tangent0_(tangent0), tangent1_(tangent1), tangent2_(tangent2)  
@@ -54,6 +61,8 @@ public:
 			 point2, (point1-point0).cross(point2-point0).normalized()) 
 	{ }
 
+	Triangle() : Triangle(Eigen::Vector3f(0,0,0), Eigen::Vector3f(1,0,0),  Eigen::Vector3f(0,1,0)) { }
+
 
 	const Eigen::Vector3f& point0() const noexcept { return point0_; }
 	const Eigen::Vector3f& point1() const noexcept { return point1_; }
@@ -66,6 +75,13 @@ public:
 	const Eigen::Vector3f& tangent2() const noexcept { return tangent2_; }
 	const Eigen::Vector3f& edge1() const noexcept { return edge1_; }
 	const Eigen::Vector3f& edge2() const noexcept { return edge2_; }
+
+//	const Eigen::Vector3f& geometric_normal() const noexcept { return geometric_normal_; }
+//	const Eigen::Vector3f& geometric_normal1() const noexcept { return geometric_normal1_; }
+//	const Eigen::Vector3f& geometric_normal2() const noexcept { return geometric_normal2_; }
+//	float distance() const noexcept { return distance_; }
+//	float distance1() const noexcept { return distance1_; }
+//	float distance2() const noexcept { return distance2_; }
 
 	float hit_distance(const std::tuple<float, float, float>& h) const noexcept override {
 		return std::get<0>(h);
@@ -96,6 +112,37 @@ public:
 		if (ray.in_range(t)) return std::make_tuple(t,u,v);
 		else return {};
 	}
+ 
+
+ /** 
+  * Using the Havel-Herout algorithm:
+  * http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=5159346
+  *
+	template <typename T> 
+	static int sgn(T val) {
+    		return (T(0) < val) - (val < T(0));
+	}
+
+	std::optional<std::tuple<float,float,float>> trace_general(const Ray& ray) const noexcept override {
+		const float eps = 1.e-6f;
+		const float det = ray.direction().dot(geometric_normal());
+		if ((det > -eps) && (det < eps)) return {}; //Its parallel
+		const float taux = -distance() - ray.origin().dot(geometric_normal()); //We check this only after dividing (ray.in_range())
+		Eigen::Vector3f paux = det*ray.origin() + taux*ray.direction();
+		const float uaux = paux.dot(geometric_normal1()) + det*distance1();
+		if (sgn(uaux) != sgn(det - uaux)) return {}; //Out of range u
+		const float vaux = paux.dot(geometric_normal2()) + det*distance2();
+		if (sgn(vaux) != sgn(det - uaux - vaux)) return {}; //Out of range v
+
+		const float t = taux / det;
+	//	std::cerr<<taux<<" / "<<det<<" = "<<t<<std::endl;
+		if (ray.in_range(t)) return std::make_tuple(t,uaux/det, vaux/det);
+		else return {};
+}
+*/
+	
+ 
+
 	
 	Hit hit(const Ray& ray, const std::tuple<float, float, float>& h) const noexcept override {
 		float t, u, v;

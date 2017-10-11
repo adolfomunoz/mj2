@@ -23,10 +23,11 @@ class Pack<Sphere,N> : public Object {
 			spheres_[n] = s;
 			++n;	
 		}
+		--n;
 		//We copy the last plane to fill the whole pack (should not happen very often...)
-		for (int i = n; i<N; ++i) {
+		for (int i = (n+1); i<N; ++i) {
 			centers_.row(i) = centers_.row(n);
-			radiuses2_[i] = radiuses2_[n];
+			radiuses2_(i) = radiuses2_(n);
 			spheres_[i] = spheres_[n];
 		}
 	}	

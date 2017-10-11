@@ -11,12 +11,12 @@
 using namespace tracer; 
 
 template<typename Object>
-std::tuple<std::optional<Hit>, float> time_per_ray(const Ray& ray, const Object& o, float time_count = 2.0f)
+std::tuple<std::optional<Hit>, float> time_per_ray(const Ray& ray, const Object& o, float time_count = 1.0f)
 {
     std::chrono::duration<float> duration(0);
     std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
     std::optional<Hit> h; unsigned long n=0;
-    while (duration.count() < time_count)
+    while ((duration.count() < time_count) || (n==0))
     {
 	h = o.trace(ray);
 	duration = std::chrono::system_clock::now() - start;
@@ -25,6 +25,10 @@ std::tuple<std::optional<Hit>, float> time_per_ray(const Ray& ray, const Object&
 
     return std::make_tuple(h,duration.count()/float(n));
 }
+
+std::string to_string(const Plane& p)  { return std::string("planes "); }
+std::string to_string(const Sphere& p) { return std::string("spheres"); }
+std::string to_string(const Triangle& p) { return std::string("triangle"); }
 
 void add_all(std::list<Plane>& a, int number) {
 	float df = 8.0f/float(std::max(number-2,1));
@@ -35,9 +39,6 @@ void add_all(std::list<Plane>& a, int number) {
 	}	
 }
 
-std::string to_string(const Plane& p)  { return std::string("planes "); }
-std::string to_string(const Sphere& p) { return std::string("spheres"); }
-
 void add_all(std::list<Sphere>& a, int number) {
 	float df = 8.0f/float(std::max(number-2,1));
 	for (float f = 2.0; f <= 6.000001f; f+=df) {
@@ -45,6 +46,16 @@ void add_all(std::list<Sphere>& a, int number) {
 		if ((number % 2) == 0)
 			a.push_back(Sphere(Eigen::Vector3f(0.0f,0.0f,0.5f-2.0f*f),f));
 	}	
+}
+
+void add_all(std::list<Triangle>& a, int number) {
+	a.push_back(Triangle(Eigen::Vector3f(-0.5f,-0.5f,2.0f),Eigen::Vector3f( 0.5f,-0.5f,2.0f), Eigen::Vector3f( 0.0f, 1.0f,2.0f), Eigen::Vector3f(0.0f,0.0f,-1.0f)));
+	for (int i = 1; i < number; i+=2)
+	{
+		a.push_back(Triangle(Eigen::Vector3f(-0.5f,-0.5f,2.0f+3.0f*(float(i)/float(number))),Eigen::Vector3f( 0.5f,-0.5f,2.0f+5.0f*(1.0f - (float(i)/float(number)))), Eigen::Vector3f( 0.0f, 1.0f,2.0f+4.0f*(float((3*i)%number)/float(number)))));
+		if ((number % 2) == 1)
+			a.push_back(Triangle(Eigen::Vector3f(-0.5f,-0.5f-1.0f*(float(i)/float(number)),5.0f),Eigen::Vector3f( 0.5f - 1.0f*(float((5*i)%number)/float(number)),-0.5f,6.0f), Eigen::Vector3f( -0.3f + float(i)/float(number), 0.7f*float(25-i)/float(number), 7.0f)));
+	}
 }
 
 
@@ -97,4 +108,6 @@ int main(int argc, char** argv) {
 	compare_sizes<tracer::Plane>();
 	std::cout<<"       SPHERES\t         List\t\t         Pack    \t\t\t Pack improvement"<<std::endl;
 	compare_sizes<tracer::Sphere>();
+	std::cout<<"       TRIANGLES\t         List\t\t         Pack    \t\t\t Pack improvement"<<std::endl;
+	compare_sizes<tracer::Triangle>();
 }
