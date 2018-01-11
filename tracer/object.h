@@ -8,7 +8,7 @@ namespace tracer {
 
 class Object {
 public:
-        Ray ray_type(const Ray& r) const noexcept { return r; }           //So it still can be called externally.
+        Ray ray_type(const Ray& r) const noexcept { return r; }                  //So it still can be called externally.
         const Hit& hit(const Ray& r, const Hit& h) const noexcept { return h; }  //So it still can be called externally.
         float hit_distance(const Hit& h) const noexcept { return h.distance(); } //So it still can be called externally.
 
@@ -47,7 +47,7 @@ public:
 template<typename HitType>
 class GeneralObject<HitType, Ray> : public Object {
 public:
-        Ray                     ray_type(const Ray& r) const noexcept { return r; } //So it still can be called externally.
+        Ray	                       ray_type(const Ray& r) const noexcept { return r; } //So it still can be called externally.
 	virtual Hit                    hit(const Ray& r, const HitType& h) const noexcept = 0;
 	virtual float                  hit_distance(const HitType& h) const noexcept = 0;
 	virtual std::optional<HitType> trace_general(const Ray& r) const noexcept = 0;
@@ -61,10 +61,29 @@ public:
 	}	
 };
 
+template<typename RayType>
+class GeneralObject<float, RayType> : public Object {
+public:
+        virtual RayType                ray_type(const Ray& r)     const noexcept = 0; 
+	virtual Hit                    hit(const RayType& r, float h) const noexcept = 0;
+	virtual float                  hit_distance(float h) const noexcept { return h; }
+	virtual std::optional<float>   trace_general(const RayType& r) const noexcept = 0;
+
+	std::optional<Hit> trace(const Ray& r) const noexcept override {
+		RayType rt = this->ray_type(r);
+		std::optional<float> h = trace_general(rt);
+		if (h) return this->hit(rt, *h); else return {};
+	}
+	virtual bool trace_shadow(const Ray& r) const noexcept override { 
+		return bool(this->trace_general(r)); 
+	}	
+};
+
+
 template<>
 class GeneralObject<float, Ray> : public Object {
 public:
-        Ray                     ray_type(const Ray& r) const noexcept { return r; } //So it still can be called externally.
+        Ray                            ray_type(const Ray& r) const noexcept { return r; } //So it still can be called externally.
 	virtual Hit                    hit(const Ray& r, float h) const noexcept = 0;
 	virtual float                  hit_distance(float h) const noexcept { return h; }
 	virtual std::optional<float>   trace_general(const Ray& r) const noexcept = 0;

@@ -21,29 +21,29 @@ CImg<T>& _tmo_reinhard02(Tfloat Lwhite, Tfloat a, Tfloat log_mean, const CImg<Tf
 }
 
 public:
-Tdouble log_mean() const
-{	if (is_empty())
+Tdouble log_mean() const {	
+	if (is_empty())
         	throw CImgInstanceException(_cimg_instance
                                     "log_mean() : Empty instance.",
                                     cimg_instance);
-      		Tdouble res = 0;
-      		cimg_for(*this,ptrs,T) res+=std::log(std::max((Tdouble)*ptrs,Tdouble(0.0001)));
-      		return std::exp(res/size());
+      	Tdouble res = 0;
+      	cimg_for(*this,ptrs,T) res+=std::log(std::max((Tdouble)*ptrs,Tdouble(0.0001)));
+      	return std::exp(res/size());
 }
 
-Tdouble log_mean_nonzero() const
-{	if (is_empty())
+Tdouble log_mean_nonzero() const {
+	if (is_empty())
         	throw CImgInstanceException(_cimg_instance
                                     "log_mean() : Empty instance.",
                                     cimg_instance);
-      		Tdouble res = 0; unsigned long n = 0;
-      		cimg_for(*this,ptrs,T) {
-			if (((Tdouble)*ptrs)>0.0) {
-				res+=std::log((Tdouble)*ptrs);
-				n++;
-			}
+      	Tdouble res = 0; unsigned long n = 0;
+      	cimg_for(*this,ptrs,T) {
+		if (((Tdouble)*ptrs)>0.0) {
+			res+=std::log((Tdouble)*ptrs);
+			n++;
 		}
-      		return std::exp(res/Tdouble(n));
+	}
+      	return std::exp(res/Tdouble(n));
 }
 
 
