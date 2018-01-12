@@ -33,8 +33,8 @@ public:
 //		std::cerr<<ray.inv_direction().transpose()<<std::endl;
 //		std::cerr<<t1.transpose()<<"\t|\t"<<t2.transpose()<<std::endl;
 
-		float tmin = std::min(t1.minCoeff(),t2.minCoeff());
-		float tmax = std::max(t1.maxCoeff(),t2.maxCoeff());
+		float tmin = t1.cwiseMin(t2).maxCoeff();
+		float tmax = t1.cwiseMax(t2).minCoeff();
 //		std::cerr<<tmin<<" - "<<tmax<<std::endl<<std::endl;
 
 		if (tmax < tmin) return { };
