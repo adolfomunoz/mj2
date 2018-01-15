@@ -26,7 +26,10 @@ tracer::Scene cornell_box() {
 	sol.push_back(std::make_shared<tracer::Pack<tracer::Triangle,2>>(triangles));
 	**/
 
-	sol.push_back(std::make_shared<tracer::AxisAlignedBox>(Eigen::Vector3f(-0.75,-1, 0),Eigen::Vector3f(-0.25,-0.5,-0.5)));
+	std::list<tracer::AxisAlignedBox> boxes;
+	boxes.push_back(tracer::AxisAlignedBox(Eigen::Vector3f(-0.75,-1, 0),Eigen::Vector3f(-0.25,-0.5,-0.5)));
+	boxes.push_back(tracer::AxisAlignedBox(Eigen::Vector3f(0.75,1, 0),Eigen::Vector3f(0.25,0.5,0.5)));
+	sol.push_back(std::make_shared<tracer::Pack<tracer::AxisAlignedBox,2>>(boxes));
 	return sol;
 }
 

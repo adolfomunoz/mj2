@@ -37,7 +37,7 @@ public:
 	std::optional<Hit> trace(const Ray& r) const noexcept override {
 		RayType rt = this->ray_type(r);
 		std::optional<HitType> h = trace_general(rt);
-		if (h) return this->hit(rt, h); else return {};
+		if (h) return this->hit(rt, *h); else return {};
 	}
 	virtual bool trace_shadow(const Ray& r) const noexcept override { 
 		return bool(this->trace_general(this->ray_type(r))); 

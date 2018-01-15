@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../object.h"
+#include <limits>
 
 namespace tracer {
 
@@ -20,11 +21,16 @@ class AxisAlignedBox : public GeneralObject<float,AABoxRay> {
 public:
 	AxisAlignedBox(const Eigen::Vector3f& min, const Eigen::Vector3f& max) noexcept :
 		min_(min.cwiseMin(max)), max_(min.cwiseMax(max)) { }
-		
+
+	AxisAlignedBox() noexcept:
+		min_(Eigen::Vector3f(std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<float>::max())),
+		max_(Eigen::Vector3f(std::numeric_limits<float>::lowest(),std::numeric_limits<float>::lowest(),std::numeric_limits<float>::lowest()))
+		{ }
+
 	const Eigen::Vector3f& min() const noexcept { return min_; }
 	const Eigen::Vector3f& max() const noexcept { return max_; }
 	
-        AABoxRay ray_type(const Ray& r) const noexcept { return AABoxRay(r); }
+        AABoxRay ray_type(const Ray& r) const noexcept override { return AABoxRay(r); }
 
 	std::optional<float> trace_general(const AABoxRay& ray) const noexcept override {
 		Eigen::Vector3f t1 = (min() - ray.origin()).cwiseProduct(ray.inv_direction());
