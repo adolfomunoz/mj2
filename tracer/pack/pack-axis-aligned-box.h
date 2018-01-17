@@ -46,19 +46,19 @@ public:
 	std::optional<std::tuple<float,int>> trace_general(const AABoxRay& ray) const noexcept override {
 		Eigen::Array<float,N,3> t1 = (mins().rowwise() - ray.origin().transpose().array()).rowwise()*ray.inv_direction().transpose().array();
 		Eigen::Array<float,N,3> t2 = (maxs().rowwise() - ray.origin().transpose().array()).rowwise()*ray.inv_direction().transpose().array();
-//		std::cerr<<min().transpose()<<"\t|\t"<<max().transpose()<<std::endl;
-//		std::cerr<<ray.inv_direction().transpose()<<std::endl;
-//		std::cerr<<t1.transpose()<<"\t|\t"<<t2.transpose()<<std::endl;
-
 		Eigen::Array<float,N,1> tmin = t1.cwiseMin(t2).rowwise().maxCoeff();
 		Eigen::Array<float,N,1> tmax = t1.cwiseMax(t2).rowwise().minCoeff();
-//		std::cerr<<tmin<<" - "<<tmax<<std::endl<<std::endl;
+
+/**		if ((!Eigen::isfinite(t1).all()) || (!Eigen::isfinite(t2).all())) {
+			std::cout<<t1<<std::endl<<std::endl<<t2<<std::endl<<std::endl<<t1.cwiseMin(t2)<<std::endl<<std::endl<<t1.cwiseMax(t2)<<std::endl<<std::endl<<tmin<<std::endl<<std::endl<<tmax<<std::endl<<"--------------"<<std::endl;
+		}
+**/
 
 		std::optional<std::tuple<float,int>> hit; Ray r = ray;
 		for (int i = 0; i<N; ++i) {
 			if (tmin[i] <= tmax[i]) {
-				if (ray.in_range(tmin[i])) { hit = std::make_tuple(tmin[i],i); r.set_range_max(tmin[i]); }
-				else if (ray.in_range(tmax[i])) { hit = std::make_tuple(tmax[i],i); r.set_range_max(tmax[i]); }
+				if (r.in_range(tmin[i])) { hit = std::make_tuple(tmin[i],i); r.set_range_max(tmin[i]); }
+				else if (r.in_range(tmax[i])) { hit = std::make_tuple(tmax[i],i); r.set_range_max(tmax[i]); }
 			};
 		}
 		return hit;
