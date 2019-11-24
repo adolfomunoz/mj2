@@ -1,7 +1,7 @@
 #include <iostream>
 #include <tracer/tracer.h>
 #include <scenes/cornell-box.h>
-#include <image/cimg-all.h>
+#include <cimg-all.h>
 
 int main(int argc, char** argv) {
 	tracer::Scene scene = scenes::cornell_box();
