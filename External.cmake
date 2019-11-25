@@ -65,50 +65,55 @@ if (NOT IS_DIRECTORY ${EXTERNAL_INSTALL_LOCATION})
 	file(MAKE_DIRECTORY ${EXTERNAL_INSTALL_LOCATION})
 endif()
 
-option(BUILD_OFFLINE "Build offline" OFF)
-
-# If offline you can set -DBUILD_OFFLINE=ON so it does not try to update stuff
-if (${BUILD_OFFLINE})
-	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                 PROPERTY EP_UPDATE_DISCONNECTED 1)
-endif()
-
-
 include(ExternalProject)
 # External include directory
 include_directories(${EXTERNAL_INSTALL_LOCATION})
+add_custom_target(update)
 
 ExternalProject_Add(cimg
   GIT_REPOSITORY https://framagit.org/dtschump/CImg.git 
   SOURCE_DIR ${EXTERNAL_INSTALL_LOCATION}/CImg
+  UPDATE_DISCONNECTED 1
+  STEP_TARGETS update
   BUILD_COMMAND ""
   CONFIGURE_COMMAND ""
   INSTALL_COMMAND ""
 )
+add_dependencies(update cimg-update)
+
 
 ExternalProject_Add(cimg-additions
   GIT_REPOSITORY https://github.com/adolfomunoz/cimg_additions.git
   SOURCE_DIR ${EXTERNAL_INSTALL_LOCATION}/cimg_additions
+  UPDATE_DISCONNECTED 1
+  STEP_TARGETS update
   BUILD_COMMAND ""
   CONFIGURE_COMMAND ""
   INSTALL_COMMAND ""
 )
+add_dependencies(update cimg-additions-update)
 
 ExternalProject_Add(eigen
   GIT_REPOSITORY https://github.com/eigenteam/eigen-git-mirror
   SOURCE_DIR ${EXTERNAL_INSTALL_LOCATION}/eigen
+  UPDATE_DISCONNECTED 1
+  STEP_TARGETS update
   BUILD_COMMAND ""
   CONFIGURE_COMMAND ""
   INSTALL_COMMAND ""
 )
+add_dependencies(update eigen-update)
 
 ExternalProject_Add(catch
   GIT_REPOSITORY https://github.com/philsquared/Catch.git
   SOURCE_DIR ${EXTERNAL_INSTALL_LOCATION}/catch
+  UPDATE_DISCONNECTED 1
+  STEP_TARGETS update
   BUILD_COMMAND ""
   CONFIGURE_COMMAND ""
   INSTALL_COMMAND ""
 )
+add_dependencies(update catch-update)
 
 include_directories(${EXTERNAL_INSTALL_LOCATION}/CImg)
 include_directories(${EXTERNAL_INSTALL_LOCATION}/cimg_additions)
