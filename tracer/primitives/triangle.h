@@ -5,13 +5,18 @@
 
 namespace tracer {
 
+
+constexpr float hit_distance(const std::tuple<float,float,float>& h) noexcept {
+	return std::get<0>(h);
+}
+
 /**
  * Using the Möller-Trumbore intersection algorithm, which proved slightly faster than the Havel-Herout algorithm
  *
  * The "HitType" is (t,u,v) where t is the ray parameter, and u and v are coordinates on the surface
  * of the triangle.
  **/
-class Triangle : public GeneralObject<std::tuple<float,float,float>> {
+class Triangle : public ObjectImpl<Triangle> { //GeneralObject<std::tuple<float,float,float>> {
 //	Eigen::Vector3f geometric_normal_, geometric_normal1_, geometric_normal2_;
 //	float distance_, distance1_, distance2_;
 	Eigen::Vector3f edge1_, edge2_;
@@ -83,15 +88,17 @@ public:
 //	float distance1() const noexcept { return distance1_; }
 //	float distance2() const noexcept { return distance2_; }
 
+/*
 	float hit_distance(const std::tuple<float, float, float>& h) const noexcept override {
 		return std::get<0>(h);
 	}
+*/
 
  /** 
   * Using the Möller-Trumbore intersection algorithm:
   * https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
   **/
-	std::optional<std::tuple<float,float,float>> trace_general(const Ray& ray) const noexcept override {
+	std::optional<std::tuple<float,float,float>> trace_general(const Ray& ray) const noexcept {
 		const float eps = 1.e-6f;
 		Eigen::Vector3f h = ray.direction().cross(edge2());
 		float a = edge1().dot(h);
@@ -144,7 +151,7 @@ public:
  
 
 	
-	Hit hit(const Ray& ray, const std::tuple<float, float, float>& h) const noexcept override {
+	Hit hit(const Ray& ray, const std::tuple<float, float, float>& h) const noexcept  {
 		float t, u, v;
 		std::tie(t,u,v) = h;
 		return Hit(t, ray.at(t), 

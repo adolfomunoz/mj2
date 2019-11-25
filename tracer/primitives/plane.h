@@ -7,7 +7,7 @@ namespace tracer {
 /**
  * Equation: normal_.dot(p) + distance_ = 0;
  **/
-class Plane : public GeneralObject<float> {
+class Plane : public ObjectImpl<Plane> { //GeneralObject<float> {
 	Eigen::Vector3f normal_;
 	float distance_;  
 
@@ -27,13 +27,13 @@ public:
 		return normal().dot(point) + distance();
 	}
 	
-	std::optional<float> trace_general(const Ray& ray) const noexcept override {
+	std::optional<float> trace_general(const Ray& ray) const noexcept {
 		float d = (-ray.origin().dot(normal()) - distance())/ray.direction().dot(normal());
 		if (ray.in_range(d)) return d; 
 		else return {};
 	}
 	
-	Hit hit(const Ray& ray, float d) const noexcept override {
+	Hit hit(const Ray& ray, float d) const noexcept {
 		return Hit(d, ray.at(d), normal());
 	}
 };

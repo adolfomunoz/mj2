@@ -7,6 +7,7 @@
 namespace tracer {
 
 class ObjectBase {
+public:
 	virtual std::optional<Hit> trace(const Ray& r) const noexcept = 0;
 	virtual bool trace_shadow(const Ray& r) const { return bool(trace(r)); }
 };
@@ -21,7 +22,7 @@ struct object_traits {
 
     using RayType = std::decay_t<decltype(test_extend_ray<O>(nullptr))>;
     static constexpr bool has_ray_type = !std::is_same_v<RayType,Ray>;
-    using HitType = decltype(std::declval<O>().trace_general(std::declval<RayType>()).value());
+    using HitType = std::decay_t<decltype(std::declval<O>().trace_general(std::declval<RayType>()).value())>;
     static constexpr bool has_hit_type = !std::is_same_v<HitType,Hit>;
 };
 
@@ -30,13 +31,14 @@ constexpr float hit_distance(float h) noexcept { return h; }
 
 template<typename O>
 class ObjectImpl : public ObjectBase {
+public:
     std::optional<Hit> trace(const Ray& r) const noexcept override {
         if constexpr (object_traits<O>::has_ray_type) {
             auto er = O::extend_ray(r);
             auto h = static_cast<const O*>(this)->trace_general(er);
             if (h) {
                 if constexpr (object_traits<O>::has_hit_type) 
-                  return static_cast<const O*>(this)->hit(er,h);
+                  return static_cast<const O*>(this)->hit(er,*h);
                 else
                   return h;  
             } else return std::optional<Hit>();
@@ -44,7 +46,7 @@ class ObjectImpl : public ObjectBase {
             auto h = static_cast<const O*>(this)->trace_general(r);
             if (h) {
                 if constexpr (object_traits<O>::has_hit_type) 
-                  return static_cast<const O*>(this)->hit(r,h);
+                  return static_cast<const O*>(this)->hit(r,*h);
                 else
                   return h;  
             } else return std::optional<Hit>();

@@ -12,10 +12,8 @@ public:
 	const Eigen::Vector3f& inv_direction() const noexcept { return inv_direction_; } 
 };
 
-/**
- * Equation: normal_.dot(p) + distance_ = 0;
- **/
-class AxisAlignedBox : public GeneralObject<float,AABoxRay> {
+
+class AxisAlignedBox : public ObjectImpl<AxisAlignedBox> { //GeneralObject<float,AABoxRay> {
 	Eigen::Vector3f min_, max_;
 
 public:
@@ -30,9 +28,9 @@ public:
 	const Eigen::Vector3f& min() const noexcept { return min_; }
 	const Eigen::Vector3f& max() const noexcept { return max_; }
 	
-        AABoxRay ray_type(const Ray& r) const noexcept override { return AABoxRay(r); }
+    static AABoxRay extend_ray(const Ray& r) noexcept { return AABoxRay(r); }
 
-	std::optional<float> trace_general(const AABoxRay& ray) const noexcept override {
+	std::optional<float> trace_general(const AABoxRay& ray) const noexcept {
 		Eigen::Vector3f t1 = (min() - ray.origin()).cwiseProduct(ray.inv_direction());
 		Eigen::Vector3f t2 = (max() - ray.origin()).cwiseProduct(ray.inv_direction());
 //		std::cerr<<min().transpose()<<"\t|\t"<<max().transpose()<<std::endl;
@@ -50,7 +48,7 @@ public:
 	}
 
 	//This is not supposed to be efficient. Very often (BVH) we're needing just the floating point number
-	Hit hit(const AABoxRay& ray, float d) const noexcept override {
+	Hit hit(const AABoxRay& ray, float d) const noexcept {
 		Eigen::Vector3f p = ray.at(d);
 		Eigen::Vector3f n(0.0f,0.0f,0.0f);
 

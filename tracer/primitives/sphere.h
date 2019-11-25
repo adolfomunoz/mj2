@@ -4,10 +4,7 @@
 
 namespace tracer {
 
-/**
- * Equation: normal_.dot(p) + distance_ = 0;
- **/
-class Sphere : public GeneralObject<float> {
+class Sphere : public ObjectImpl<Sphere> { //GeneralObject<float> {
 	Eigen::Vector3f center_;
 	float radius_;  
 	float radius2_;
@@ -27,7 +24,7 @@ public:
 	}
 	
 	
-	std::optional<float> trace_general(const Ray& ray) const noexcept override {
+	std::optional<float> trace_general(const Ray& ray) const noexcept {
 		Eigen::Vector3f oc = ray.origin() - center();
 		float a = ray.direction().squaredNorm();
 		float b = 2.0f*ray.direction().dot(oc);
@@ -46,7 +43,7 @@ public:
 		}
 	}
 	
-	Hit hit(const Ray& ray, float d) const noexcept override {
+	Hit hit(const Ray& ray, float d) const noexcept {
 		Eigen::Vector3f p = ray.at(d);
 		return Hit(d, p, (p - center()).normalized());
 	}

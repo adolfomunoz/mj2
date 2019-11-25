@@ -6,20 +6,23 @@
 #include "../object.h"
 
 namespace tracer {
+	
+template<typename HitType, typename O>
+float hit_distance(const std::tuple<HitType,const O*>& h) {
+	return hit_distance(std::get<0>(h));
+}
 
 //TODO: Deduce HitType and RayType and do this as an "ObjectGeneral<RayType, std::tuple<HitType, int>>" for efficiency purposes.
 template<typename O>
-class List : public Object {
-	static_assert(std::is_base_of_v<Object,O>, "The List is not a list of Objects");
-	
-	using RayType = decltype(std::declval<O>().ray_type(std::declval<Ray>()));
-	using HitType = typename std::remove_const<typename std::remove_reference<decltype(std::declval<O>().trace_general(std::declval<RayType>()).value())>::type>::type;
-
+class List : public ObjectImpl<List<O>> {
+	static_assert(std::is_base_of_v<ObjectBase,O>, "The List is not a list of Objects");
 	/**
 	 * We use a std::vector instead of a std::list for dynamic allocation but locality in memory (more cache-friendlyness)
 	 **/
 	std::vector<O> objects_; 
 	
+	using HitType = typename object_traits<O>::HitType;
+	using RayType = typename object_traits<O>::RayType;
 public:
 	//Efficient constructors are not a priority (geometry generation). 
 	//Efficient tracing is.
@@ -31,22 +34,32 @@ public:
 
 	//TODO: Add hit_distance
 	//TODO: Add hit(RayType,HitType)
+	
+	static RayType extend_ray(const Ray& r) {
+		if constexpr (object_traits<O>::has_ray_type)
+			return O::extend_ray(r);
+		else
+			return r;
+	}
 
-	//TODO: Change this to trace_general when Object becomes ObjectGeneral
-	std::optional<Hit> trace(const Ray& ray) const noexcept override {
-		RayType r = objects()[0].ray_type(ray); //Should be the same for all objects.
-		std::optional<HitType> hit, hitsingle;
-		const O* closest_object = nullptr;
-		for (const O& object : objects()) {
-			assert(objects()[0].ray_type(ray) == object.ray_type(ray)); //This assertion is not checked in release mode, but it is neccesary in debug mode.
-			if ((hitsingle = object.trace_general(r))) {
-				hit = hitsingle;
-				r.set_range_max(object.hit_distance(*hit));
-				closest_object = &object;
+	std::optional<std::tuple<HitType,const O*>> 
+		trace_general(const typename object_traits<O>::RayType& ray) const noexcept {
+			typename object_traits<O>::RayType r = ray;
+			std::optional<typename object_traits<O>::HitType> hit, hitsingle;
+			const O* closest_object = nullptr;
+			for (const O& object : objects()) {
+				if (hitsingle = object.trace_general(r)) {
+					hit = hitsingle;
+					r.set_range_max(hit_distance(*hit));
+					closest_object = &object;
+				}
 			}
-		}
-		if (hit) return closest_object->hit(ray,*hit);
-		else return { };
+			if (hit) return std::tuple<HitType,const O*>(*hit, closest_object); 
+			else return std::optional<std::tuple<HitType,const O*>>();
+	}
+	
+	Hit hit(const RayType& ray, const std::tuple<HitType,const O*>& h) const {
+		return std::get<1>(h)->hit(ray,std::get<0>(h));
 	}
 	
 	//TODO: Make more efficient (using RayType)	
