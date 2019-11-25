@@ -24,7 +24,7 @@ public:
 	Hit(float distance, const Eigen::Vector3f& point, const Eigen::Vector3f& normal) noexcept :
 		Hit(distance, point, normal, Eigen::Vector3f(0,1,0).cross(normal).normalized()) { }
 		
-	float distance() const noexcept { return distance_; }
+	constexpr float distance() const noexcept { return distance_; }
 	const Eigen::Vector3f& point() const noexcept { return point_; }
 	const Eigen::Matrix3f& local_to_global() const noexcept { return local_to_global_; }
 	
