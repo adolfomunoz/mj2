@@ -8,7 +8,7 @@
 namespace tracer {
 
 template<int N>
-class Pack<AxisAlignedBox,N> : public GeneralObject<std::tuple<float, int>, AABoxRay> {
+class Pack<AxisAlignedBox,N> : public ObjectImpl<Pack<AxisAlignedBox,N>> {
 	Eigen::Array<float,N,3> mins_;
 	Eigen::Array<float,N,3> maxs_;
 	std::array<AxisAlignedBox,N> boxes_;
@@ -40,10 +40,10 @@ public:
 	const Eigen::Array<float,N,3>& maxs() const noexcept { return maxs_; }
 	const std::array<Plane,N>& boxes() const noexcept { return boxes_; }
 
-        AABoxRay ray_type(const Ray& r) const noexcept override { return AABoxRay(r); }
-	float hit_distance(const std::tuple<float, int>& t) const noexcept override { return std::get<0>(t); }
+    static AABoxRay ray_type(const Ray& r) noexcept 
+	{ return AABoxRay(r); }
 
-	std::optional<std::tuple<float,int>> trace_general(const AABoxRay& ray) const noexcept override {
+	std::optional<std::tuple<float,int>> trace_general(const AABoxRay& ray) const noexcept {
 		Eigen::Array<float,N,3> t1 = (mins().rowwise() - ray.origin().transpose().array()).rowwise()*ray.inv_direction().transpose().array();
 		Eigen::Array<float,N,3> t2 = (maxs().rowwise() - ray.origin().transpose().array()).rowwise()*ray.inv_direction().transpose().array();
 		Eigen::Array<float,N,1> tmin = t1.cwiseMin(t2).rowwise().maxCoeff();
@@ -65,7 +65,7 @@ public:
 	}	
 
 	//This is not supposed to be efficient. Very often (BVH) we're needing just the floating point number
-	Hit hit(const AABoxRay& ray, const std::tuple<float, int>& t) const noexcept override {
+	Hit hit(const AABoxRay& ray, const std::tuple<float, int>& t) const noexcept {
 		Eigen::Vector3f p = ray.at(std::get<0>(t));
 		Eigen::Vector3f n(0.0f,0.0f,0.0f);
 

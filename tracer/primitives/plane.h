@@ -28,9 +28,12 @@ public:
 	}
 	
 	std::optional<float> trace_general(const Ray& ray) const noexcept {
-		float d = (-ray.origin().dot(normal()) - distance())/ray.direction().dot(normal());
-		if (ray.in_range(d)) return d; 
-		else return {};
+		std::optional<float> sol;
+		float den = ray.direction().dot(normal());
+		if (std::abs(den) < 1.e-10) return sol;
+		float d = (-ray.origin().dot(normal()) - distance())/den;
+		if (ray.in_range(d)) return sol = d;
+		return sol;
 	}
 	
 	Hit hit(const Ray& ray, float d) const noexcept {

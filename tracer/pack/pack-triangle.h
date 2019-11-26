@@ -7,7 +7,7 @@
 namespace tracer {
 
 template<int N> //Make it ObjectGeneral<std::tuple<float, int>>
-class Pack<Triangle,N> : public Object {
+class Pack<Triangle,N> : public ObjectImpl<Pack<Triangle,N>> {
 	Eigen::Matrix<float,N,3> geometric_normals_;
 	Eigen::Matrix<float,N,3> geometric_normals1_;
 	Eigen::Matrix<float,N,3> geometric_normals2_;
@@ -105,7 +105,7 @@ public:
 	}
 
 
-	std::optional<Hit> trace(const Ray& ray) const noexcept override {
+	std::optional<std::tuple<float,float,float,const Triangle*>> trace_general(const Ray& ray) const noexcept {
 		const float eps = 1.e-6f;
 		Eigen::Matrix<float,N,1> det = geometric_normals()*ray.direction();
 //		if ((det > -eps) && (det < eps)) return {}; //Its parallel
@@ -128,7 +128,12 @@ public:
 		}
 
 		if (n < 0) return {};
-		else return triangles()[n].hit(ray, std::make_tuple(t(n), uaux(n)/det(n), vaux(n)/det(n)));
+		else return std::tuple<float,float,float,const Triangle*>(t(n), uaux(n)/det(n), vaux(n)/det(n), &triangles_[n]); 
+	}
+	
+	Hit hit(const Ray& ray, const std::tuple<float, float, float, const Triangle*>& h) const noexcept {
+		return std::get<3>(h)->hit(ray,
+			std::tuple<float,float,float>(std::get<0>(h),std::get<1>(h),std::get<2>(h)));
 	}
 
 };

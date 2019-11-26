@@ -29,9 +29,11 @@ public:
 	List(const std::list<O>& il)      noexcept : objects_(il.begin(), il.end()) { }
 	List(const std::vector<O>& il)    noexcept : objects_(il.begin(), il.end()) { }
 	List(std::vector<O>&& objects)    noexcept : objects_(std::forward<std::vector<O>>(objects)) { } //Efficient moving 
-	
+	List() noexcept {}
 	const std::vector<O>& objects() const noexcept { return objects_; }
 
+	void add(const O& o) { objects_.push_back(o); }
+	void add(O&& o)      { objects_.push_back(std::forward<O>(o)); }
 	//TODO: Add hit_distance
 	//TODO: Add hit(RayType,HitType)
 	
@@ -48,7 +50,7 @@ public:
 			std::optional<typename object_traits<O>::HitType> hit, hitsingle;
 			const O* closest_object = nullptr;
 			for (const O& object : objects()) {
-				if (hitsingle = object.trace_general(r)) {
+				if ((hitsingle = object.trace_general(r))) {
 					hit = hitsingle;
 					r.set_range_max(hit_distance(*hit));
 					closest_object = &object;
@@ -59,7 +61,10 @@ public:
 	}
 	
 	Hit hit(const RayType& ray, const std::tuple<HitType,const O*>& h) const {
-		return std::get<1>(h)->hit(ray,std::get<0>(h));
+		if constexpr (object_traits<O>::has_hit_type)
+			return std::get<1>(h)->hit(ray,std::get<0>(h));
+		else
+			return std::get<0>(h);	
 	}
 	
 	//TODO: Make more efficient (using RayType)	
@@ -71,5 +76,25 @@ public:
 		return false;
 	}	
 };
+
+template<typename C>
+List<typename C::value_type> list(const C& l) {
+	return List<typename C::value_type>(l);
+}
+
+template<typename O>
+List<O> list(const O& o1, const O& o2) {
+	return list(std::vector<O>{o1,o2});
+}
+
+template<typename O>
+List<O> list(const O& o1, const O& o2, const O& o3) {
+	return list(std::vector<O>{o1,o2,o3});
+}
+
+template<typename O>
+List<O> list(const O& o1, const O& o2, const O& o3, const O& o4) {
+	return list(std::vector<O>{o1,o2,o3,o4});
+}
 
 }; //namespace tracer

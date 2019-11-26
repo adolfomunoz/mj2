@@ -5,8 +5,8 @@
 
 namespace tracer {
 
-
-constexpr float hit_distance(const std::tuple<float,float,float>& h) noexcept {
+template<typename... Rest>
+constexpr float hit_distance(const std::tuple<float,Rest...>& h) noexcept {
 	return std::get<0>(h);
 }
 

@@ -25,22 +25,22 @@ public:
 	
 	
 	std::optional<float> trace_general(const Ray& ray) const noexcept {
+		std::optional<float> sol;
 		Eigen::Vector3f oc = ray.origin() - center();
 		float a = ray.direction().squaredNorm();
 		float b = 2.0f*ray.direction().dot(oc);
 		float c = oc.squaredNorm() - radius2();
 
 		float disc = b*b - 4*a*c;
-		if (disc < 0) return {};
-		else {
+		if (disc >= 0) {
 			float sqrtdisc = std::sqrt(disc);
 			float inv2a = 0.5f/a;
 			float d1 = (-b - sqrtdisc)*inv2a;
 			float d2 = (-b + sqrtdisc)*inv2a;
-			if (ray.in_range(d1))      return d1; 			
-			else if (ray.in_range(d2)) return d2;
-			else return {};
+			if (ray.in_range(d1))      sol = d1; 			
+			else if (ray.in_range(d2)) sol = d2;	
 		}
+		return sol;
 	}
 	
 	Hit hit(const Ray& ray, float d) const noexcept {

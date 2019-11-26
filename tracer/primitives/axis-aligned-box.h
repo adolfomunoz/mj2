@@ -31,6 +31,7 @@ public:
     static AABoxRay extend_ray(const Ray& r) noexcept { return AABoxRay(r); }
 
 	std::optional<float> trace_general(const AABoxRay& ray) const noexcept {
+		std::optional<float> sol;
 		Eigen::Vector3f t1 = (min() - ray.origin()).cwiseProduct(ray.inv_direction());
 		Eigen::Vector3f t2 = (max() - ray.origin()).cwiseProduct(ray.inv_direction());
 //		std::cerr<<min().transpose()<<"\t|\t"<<max().transpose()<<std::endl;
@@ -41,10 +42,11 @@ public:
 		float tmax = t1.cwiseMax(t2).minCoeff();
 //		std::cerr<<tmin<<" - "<<tmax<<std::endl<<std::endl;
 
-		if (tmax < tmin) return { };
-		else if (ray.in_range(tmin)) return tmin;
-		else if (ray.in_range(tmax)) return tmax;
-		else return { }; 
+		if (tmax >= tmin) {
+			if (ray.in_range(tmin)) 	 sol = tmin;
+			else if (ray.in_range(tmax)) sol = tmax;
+		}
+		return sol;
 	}
 
 	//This is not supposed to be efficient. Very often (BVH) we're needing just the floating point number

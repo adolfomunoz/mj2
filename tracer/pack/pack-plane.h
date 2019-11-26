@@ -7,7 +7,7 @@
 namespace tracer {
 
 template<int N> //Make it ObjectGeneral<std::tuple<float, int>>
-class Pack<Plane,N> : public Object {
+class Pack<Plane,N> : public ObjectImpl<Pack<Plane,N>> {
 	Eigen::Matrix<float,N,3> normals_;
 	Eigen::Matrix<float,N,1> distances_;
 	std::array<Plane,N> planes_;
@@ -39,7 +39,7 @@ public:
 	const Eigen::Matrix<float,N,1>& distances() const noexcept { return distances_; }
 	const std::array<Plane,N>& planes() const noexcept { return planes_; }
 
-	std::optional<Hit> trace(const Ray& ray) const noexcept override {
+	std::optional<std::tuple<float,const Plane*>> trace_general(const Ray& ray) const noexcept {
 		Eigen::Matrix<float,N,1> d = -(normals() * ray.direction()).cwiseInverse().cwiseProduct(normals() * ray.origin() + distances());
 		int n = -1;
 
@@ -51,9 +51,13 @@ public:
 			}
 		}
 
-		if (n < 0) return { };
-		else       return Hit(d[n], ray.at(d[n]), normals().row(n).transpose());
-	}	
+		if (n < 0) return std::optional<std::tuple<float,const Plane*>>();
+		else       return std::tuple<float,const Plane*>(d[n],&planes_[n]);
+	}
+
+	Hit hit(const Ray& ray, const std::tuple<float,const Plane*>& h) const {
+		return std::get<1>(h)->hit(ray,std::get<0>(h));
+	}		
 };
 
 

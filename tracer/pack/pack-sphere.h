@@ -7,7 +7,7 @@
 namespace tracer {
 
 template<int N> //Make it ObjectGeneral<std::tuple<float, int>>
-class Pack<Sphere,N> : public Object {
+class Pack<Sphere,N> : public ObjectImpl<Pack<Sphere,N>> {
 	Eigen::Matrix<float,N,3> centers_;
 	Eigen::Matrix<float,N,1> radiuses2_;
 	std::array<Sphere,N> spheres_;
@@ -39,7 +39,7 @@ public:
 	const Eigen::Matrix<float,N,1>& radiuses2() const noexcept { return radiuses2_; }
 	const std::array<Sphere,N>& spheres() const noexcept { return spheres_; }
 
-	std::optional<Hit> trace(const Ray& ray) const noexcept override {
+	std::optional<std::tuple<float,const Sphere*>> trace_general(const Ray& ray) const noexcept {
 		Eigen::Matrix<float,N,3> oc = centers().rowwise() - ray.origin().transpose();
 		float a = ray.direction().squaredNorm();
 		Eigen::Matrix<float,N,1> b = -2.0f*(oc*ray.direction());
@@ -53,7 +53,7 @@ public:
 		Eigen::Matrix<float,N,1> d2 = (-b + sqrtdisc)*inv2a;
 
 		std::optional<Hit> hit; Ray r = ray;
-	        int n = -1;	
+	    int n = -1;	
 		for (int i = 0; i<N; ++i) {
 			if (disc[i]>0) {
 				if (r.in_range(d1[i])) {
@@ -66,13 +66,15 @@ public:
 				}
 			}
 		} 		
-		
-		if (n<0) return { };
-		else {
-		   // r.range_max() holds the final distance
-		   Eigen::Vector3f p = ray.at(r.range_max());    
-		   return Hit(r.range_max(),p,(p - centers().row(n).transpose()).normalized());
-		}
+		// r.range_max() holds the final distance
+		if (n<0) return std::optional<std::tuple<float,const Sphere*>>();
+		else return std::tuple<float,const Sphere*>(r.range_max(),&spheres_[n]); 
+		//Eigen::Vector3f p = ray.at(r.range_max());    
+		//return Hit(r.range_max(),p,(p - centers().row(n).transpose()).normalized());
+	}
+
+	Hit hit(const Ray& ray, const std::tuple<float,const Sphere*>& h) const {
+		return std::get<1>(h)->hit(ray,std::get<0>(h));
 	}	
 };
 
