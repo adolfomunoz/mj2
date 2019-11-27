@@ -8,6 +8,13 @@
 namespace tracer {
 
 class ObjectBase {
+#ifdef MATERIAL
+protected:
+    std::shared_ptr<MATERIAL> mat;
+public:
+    const std::shared_ptr<MATERIAL>& material() const { return mat; }
+#endif
+
 public:
 	virtual std::optional<Hit> trace(const Ray& r) const noexcept = 0;
 	virtual bool trace_shadow(const Ray& r) const { return bool(trace(r)); }
@@ -33,23 +40,45 @@ constexpr float hit_distance(float h) noexcept { return h; }
 template<typename O>
 class ObjectImpl : public ObjectBase {
 public:
+#ifdef MATERIAL
+    O& set_material(const std::shared_ptr<MATERIAL>& m) { mat = m; return static_cast<O&>(*this); }
+    O& set_material(const MATERIAL& m) { return set_material(std::make_shared<MATERIAL>(m)); }
+    O& set_material(MATERIAL&& m) { return set_material(std::make_shared<MATERIAL>(std::forward<MATERIAL>(m))); }
+#endif
+
     std::optional<Hit> trace(const Ray& r) const noexcept override {
         if constexpr (object_traits<O>::has_ray_type) {
             auto er = O::extend_ray(r);
             auto h = static_cast<const O*>(this)->trace_general(er);
             if (h) {
                 if constexpr (object_traits<O>::has_hit_type) 
-                  return static_cast<const O*>(this)->hit(er,*h);
+                    #ifdef MATERIAL
+                        return static_cast<const O*>(this)->hit(er,*h).set_material(this->material());
+                    #else
+                        return static_cast<const O*>(this)->hit(er,*h);
+                    #endif
                 else
-                  return h;  
+                    #ifdef MATERIAL
+                        return h.set_material(this->material());  
+                    #else
+                        return h;
+                    #endif
             } else return std::optional<Hit>();
         } else {
             auto h = static_cast<const O*>(this)->trace_general(r);
             if (h) {
                 if constexpr (object_traits<O>::has_hit_type) 
-                  return static_cast<const O*>(this)->hit(r,*h);
+                    #ifdef MATERIAL
+                        return static_cast<const O*>(this)->hit(r,*h).set_material(this->material());
+                    #else
+                        return static_cast<const O*>(this)->hit(r,*h);
+                    #endif
                 else
-                  return h;  
+                    #ifdef MATERIAL
+                        return h->set_material(this->material());  
+                    #else
+                        return h;
+                    #endif
             } else return std::optional<Hit>();
         }
    }

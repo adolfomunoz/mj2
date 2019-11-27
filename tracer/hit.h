@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Dense>
+#include <memory>
 
 namespace tracer {
 class Hit {
@@ -33,6 +34,15 @@ public:
 	auto normal() const noexcept { return local_to_global().col(2); }
 //	constexpr const Plane& object() const noexcept { return object_; }
 	
+#ifdef MATERIAL
+    std::shared_ptr<MATERIAL> mat;
+public:
+    const std::shared_ptr<MATERIAL>& material() const { return mat; }
+    Hit& set_material(const std::shared_ptr<MATERIAL>& m) { 
+        if (m) mat = m;
+        return (*this); 
+    }
+#endif
 };
 
 };
