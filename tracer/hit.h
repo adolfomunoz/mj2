@@ -23,7 +23,7 @@ public:
 
 	//It is not a good idea to rely on this constructor very much
 	Hit(float distance, const Eigen::Vector3f& point, const Eigen::Vector3f& normal) noexcept :
-		Hit(distance, point, normal, Eigen::Vector3f(0,1,0).cross(normal).normalized()) { }
+		Hit(distance, point, normal, Eigen::Vector3f(normal[1],normal[2],normal[0]).cross(normal).normalized()) { }
 		
 	constexpr float distance() const noexcept { return distance_; }
 	const Eigen::Vector3f& point() const noexcept { return point_; }
