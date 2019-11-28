@@ -11,9 +11,8 @@ class Ray {
 	std::tuple<float, float> range_;
 
 public:
-	Ray(const Eigen::Vector3f& origin, const Eigen::Vector3f& direction, 
-		const std::tuple<float, float>& range = std::make_tuple(0.0f, std::numeric_limits<float>::infinity())) noexcept:
-		origin_(origin), direction_(direction), range_(range)
+	Ray(const Eigen::Vector3f& origin, const Eigen::Vector3f& direction, float range_min = 0.0f, float range_max = std::numeric_limits<float>::infinity()) noexcept:
+		origin_(origin), direction_(direction), range_(range_min, range_max)
 		{}
 	
 	const Eigen::Vector3f& origin() const noexcept    { return origin_;    }
