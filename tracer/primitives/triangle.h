@@ -37,12 +37,12 @@ public:
 		normal0_(normal0), normal1_(normal1), normal2_(normal2),
 		tangent0_(tangent0), tangent1_(tangent1), tangent2_(tangent2)  
 	{
-		assert(std::abs(normal0_.norm2() - 1.0)<1.e-5);  //normal should be normalized
-		assert(std::abs(normal1_.norm2() - 1.0)<1.e-5);  //normal should be normalized
-		assert(std::abs(normal2_.norm2() - 1.0)<1.e-5);  //normal should be normalized
-		assert(std::abs(tangent0_.norm2() - 1.0)<1.e-5); //tangent should be normalized
-		assert(std::abs(tangent1_.norm2() - 1.0)<1.e-5); //tangent should be normalized
-		assert(std::abs(tangent2_.norm2() - 1.0)<1.e-5); //tangent should be normalized
+		assert(std::abs(normal0_.squaredNorm() - 1.0)<1.e-5);  //normal should be normalized
+		assert(std::abs(normal1_.squaredNorm() - 1.0)<1.e-5);  //normal should be normalized
+		assert(std::abs(normal2_.squaredNorm() - 1.0)<1.e-5);  //normal should be normalized
+		assert(std::abs(tangent0_.squaredNorm() - 1.0)<1.e-5); //tangent should be normalized
+		assert(std::abs(tangent1_.squaredNorm() - 1.0)<1.e-5); //tangent should be normalized
+		assert(std::abs(tangent2_.squaredNorm() - 1.0)<1.e-5); //tangent should be normalized
 	}
 
 	Triangle(const Eigen::Vector3f& point0, const Eigen::Vector3f& normal0,

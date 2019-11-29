@@ -13,9 +13,9 @@ public:
 	Hit(float distance, const Eigen::Vector3f& point, const Eigen::Vector3f& normal, const Eigen::Vector3f& tangent) noexcept :
 		distance_(distance), point_(point) 
 		{
-			assert(std::abs(normal.norm2() - 1.0)<1.e-5);  //normal should be normalized
-			assert(std::abs(tangent.norm2() - 1.0)<1.e-5); //tangent should be normalized
-			assert(std::abs(normal.dot(tangent))<1.e-5);   //normal and tangent should be perpendicular
+			assert(std::abs(normal.squaredNorm() - 1.0)<1.e-3);  //normal should be normalized
+			assert(std::abs(tangent.squaredNorm() - 1.0)<1.e-3); //tangent should be normalized
+			assert(std::abs(normal.dot(tangent))<1.e-3);   //normal and tangent should be perpendicular
 			local_to_global_.col(0) = tangent;
 			local_to_global_.col(1) = normal.cross(tangent);
 			local_to_global_.col(2) = normal;
