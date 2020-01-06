@@ -11,7 +11,7 @@ public:
 
 };
 
-template<typename C, int N>
+template<int N, typename C>
 Pack<typename C::value_type,N> pack(const C& l) {
 	return Pack<typename C::value_type,N>(l);
 }

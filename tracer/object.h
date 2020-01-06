@@ -102,9 +102,20 @@ public:
 	template<typename O>
 	Object(O&& object) : o(std::make_shared<std::decay_t<O>>(std::forward<O>(object))) {}
 	
+	Object(const Object& object) : o(object.o) {}
+	Object(Object&& object) : o(std::move(object.o)) {}
+	
+	Object(std::shared_ptr<ObjectBase>&& object) :
+		o(std::forward<std::shared_ptr<ObjectBase>>(object)) {}
+	Object(const std::shared_ptr<ObjectBase>& object) :
+		o(object){}
+	
 	std::optional<Hit> trace_general(const Ray& r) const noexcept {
-		std::optional<Hit> h;
-		if (o) h = o->trace(r);
+		assert(bool(o)); //o should always point to an object
+		auto h = o->trace(r);
+		#ifdef MATERIAL
+		if (h) h->set_material(this->material());
+		#endif
 		return h;
 	}
 	bool trace_shadow(const Ray& r) const noexcept override { 

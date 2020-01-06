@@ -1,5 +1,7 @@
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include <catch.hpp>
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
 #include <tracer/tracer.h>
 
 TEST_CASE( "Intersection with plane", "[plane]" ) {
@@ -78,8 +80,6 @@ TEST_CASE( "Intersection with list of triangles", "[list][triangle]" ) {
 	REQUIRE( hit->distance() == Approx(2.0f) );
 }
 
-
-
 TEST_CASE( "Intersection with list of boxes", "[list][box]" ) {
 	tracer::Ray r(Eigen::Vector3f(0.0f,0.0f,2.0f), Eigen::Vector3f(0.0f,0.0f,-1.0f));
 	auto boxes = tracer::list(
@@ -144,4 +144,40 @@ TEST_CASE( "Intersection with pack of boxes", "[pack][box]" ) {
 	REQUIRE( hit );
 	REQUIRE( hit->distance() == Approx(1.0f) );
 }
+
+TEST_CASE( "Intersection with instance of sphere (translation)", "[instance][sphere][translation]" ) {
+	tracer::Ray r(Eigen::Vector3f(0.0f,0.0f,2.0f), Eigen::Vector3f(0.0f,0.0f,-1.0f));
+	tracer::Instance i1(Eigen::Translation3f(0.0f,0.0f,1.0f),tracer::Sphere(Eigen::Vector3f(0.0f,0.0f,0.0f), 1.0f));
+	std::optional<tracer::Hit> hit = i1.trace(r);
+	REQUIRE( hit );
+	REQUIRE( hit->distance() == Approx(0.0f) );
+	
+	tracer::Instance i2(Eigen::Translation3f(2.0f,0.0f,0.0f),tracer::Sphere(Eigen::Vector3f(0.0f,0.0f,0.0f), 1.0f));
+	hit = i2.trace(r);
+	REQUIRE( !hit );
+}
+
+
+TEST_CASE( "Intersection with instance of sphere (scaling)", "[instance][sphere][scaling]" ) {
+	tracer::Ray r(Eigen::Vector3f(0.0f,0.0f,2.0f), Eigen::Vector3f(0.0f,0.0f,-1.0f));
+	tracer::Instance i1(Eigen::Vector3f(2.0f,2.0f,2.0f).asDiagonal(),tracer::Sphere(Eigen::Vector3f(0.0f,0.0f,0.0f), 1.0f));
+	std::optional<tracer::Hit> hit = i1.trace(r);
+	REQUIRE( hit );
+	REQUIRE( hit->distance() == Approx(0.0f) );
+}
+
+
+TEST_CASE( "Intersection with instance of sphere (composition)", "[instance][sphere][translation][scaling]" ) {
+	tracer::Ray r(Eigen::Vector3f(0.0f,0.0f,2.0f), Eigen::Vector3f(0.0f,0.0f,-1.0f));
+	tracer::Instance i1(Eigen::Translation3f(0.0f,0.0f,1.0f)*Eigen::Vector3f(2.0f,2.0f,2.0f).asDiagonal(),tracer::Sphere(Eigen::Vector3f(0.0f,0.0f,0.0f), 0.5f));
+	std::optional<tracer::Hit> hit = i1.trace(r);
+	REQUIRE( hit );
+	REQUIRE( hit->distance() == Approx(0.0f) );
+	
+	tracer::Instance i2(Eigen::Translation3f(2.0f,0.0f,0.0f)*Eigen::Vector3f(2.0f,2.0f,2.0f).asDiagonal(),tracer::Sphere(Eigen::Vector3f(0.0f,0.0f,0.0f), 0.5f));
+	hit = i2.trace(r);
+	REQUIRE( !hit );
+}
+
+
 

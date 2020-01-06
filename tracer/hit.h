@@ -33,6 +33,8 @@ public:
 	auto bitangent() const noexcept { return local_to_global().col(1); }	
 	auto normal() const noexcept { return local_to_global().col(2); }
 //	constexpr const Plane& object() const noexcept { return object_; }
+
+
 	
 #ifdef MATERIAL
     std::shared_ptr<MATERIAL> mat;

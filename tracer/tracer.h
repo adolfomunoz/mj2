@@ -14,4 +14,5 @@
 #include "pack/pack-sphere.h"
 #include "pack/pack-triangle.h"
 #include "pack/pack-axis-aligned-box.h"
+#include "composites/instance.h"
 #include "sensors/pinhole.h"
